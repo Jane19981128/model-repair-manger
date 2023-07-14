@@ -3,12 +3,23 @@ import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router
 const routes = [
     {
         path: '/',
-        redirect: '/chalk'
+        redirect: '/login'
+    },
+    {
+        path: "/login",
+        name: "login",
+        component: () => import('../views/login/index.vue'),
+        meta: {
+            keepAlive: false
+        }
     },
     {
         path: "/chalk",
         name: "chalk",
-        component: () => import('../views/home/index.vue')
+        component: () => import('../views/home/index.vue'),
+        meta: {
+            keepAlive: true
+        }
     },
     {
         path: '/404',
