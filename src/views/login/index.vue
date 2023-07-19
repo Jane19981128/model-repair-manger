@@ -21,7 +21,7 @@
 
                     <a-form-item>
                         <div class="login-button">
-                            <a-button type="text" @click="triggerLogin" style="color: #d9d9d9;">登 录</a-button>
+                            <a-button type="text" @click="triggerLogin">登 录</a-button>
                         </div>
                     </a-form-item>
                 </a-form>
@@ -78,7 +78,6 @@ const onSubmit = async () => {
             loading.value = false;
         }).catch(error => {
             loading.value = false;
-            message.error(error);
         });
 
     }).catch(error => {
@@ -91,13 +90,27 @@ const triggerLogin = debounce(function () {
 });
 </script>
 <style scoped>
-.ant-input {
+:deep(.ant-input) {
     caret-color: #fff;
     color: #fff;
+
 }
 
-.ant-input-password-icon svg {
+:deep(.ant-input-password-icon svg) {
     color: #d9d9d9;
+}
+
+:deep(.ant-btn) {
+    color: #d9d9d9;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(to right, #30cfd0, #330867);
+}
+
+:deep(.ant-btn:hover) {
+    color: #fff;
+    border: 1px solid #fff;
 }
 
 .container {
@@ -131,16 +144,12 @@ h2 {
 
 .input-box {
     margin: 3% auto;
-    width: 70%;
+    width: 80%;
 }
 
 .login-button {
     margin: 20px auto 0;
-    width: 70%;
-    height: 32px;
-    border-radius: 10px;
-    text-align: center;
-    background-image: linear-gradient(to right, #30cfd0, #330867);
+    width: 80%;
 }
 
 #sign_up {
