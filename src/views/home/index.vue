@@ -184,6 +184,7 @@ const deleteRecord = (row) => {
             message.success('删除成功！');
         } else {
             message.error(response.msg);
+            router.push('/login');
         }
     });
 };
@@ -252,6 +253,7 @@ const expandHandle = (expanded, record) => {
                 expandedRowKeys.push(record.key);
             } else {
                 message.error(response.msg);
+                router.push('/login');
             }
         });
     } else {
@@ -265,13 +267,14 @@ let drawingData = reactive({});
 const detailDrawing = (row) => {
     loading.value = true;
     apiDrawingData(row.chalkid).then(response => {
+        loading.value = false;
         if (response.code === SUCCESS_CODE) {
             drawingData = reactive(response.data);
             drawingBoxVisible.value = true;
         } else {
             message.error(response.msg);
+            router.push('/login');
         }
-        loading.value = false;
     });
 
 };
