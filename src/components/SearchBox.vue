@@ -4,9 +4,6 @@
             @search="onSearch"></a-input-search>
         <a-button type="link" @click="showCheckBoxChange">{{ openTip }}</a-button>
     </div>
-    <div class="btn-box">
-        <a-button type="danger" @click="openSetTokenDialog">设置token</a-button>
-    </div>
     <div v-show="showCheckBox">
         <a-row type="flex">
             <a-col flex="80px">状态：</a-col>
@@ -27,40 +24,15 @@
             </a-col>
         </a-row>
     </div>
-    <a-modal :visible="visible" title="token" @ok="setQTokenClick" @cancel="handleCancel">
-        <template #footer>
-            <a-button key="submit" @click="setQTokenClick" type="primary">确定</a-button>
-        </template>
-        <div class="modal-content">
-            <a-textarea v-model:value="token" show-count :maxlength="1000" />
-        </div>
-    </a-modal>
 </template>
 <script setup>
 import { reactive, ref, watch } from 'vue';
-// import { setQToken, getQToken } from '@/api/floorplan/localStore';
 
 const emit = defineEmits(['searchKey']);
 const search = ref('');
-// const token = ref(getQToken());
-let visible = ref(false);
 
 const onSearch = () => {
     emit('searchKey', search, checkState.checkedList, checkDevice.checkedList);
-};
-
-const openSetTokenDialog = () => {
-    visible.value = true;
-};
-
-const setQTokenClick = () => {
-    // setQToken(token.value);
-
-    visible.value = false;
-};
-
-const handleCancel = () => {
-    visible.value = false;
 };
 
 /**
