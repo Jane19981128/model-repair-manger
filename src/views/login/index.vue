@@ -90,7 +90,7 @@ const triggerLogin = debounce(function () {
     onSubmit();
 });
 </script>
-<style>
+<style scoped>
 .ant-input {
     caret-color: #fff;
     color: #fff;
