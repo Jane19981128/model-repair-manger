@@ -3,7 +3,7 @@
     <div class="container">
         <search-box @searchKey="queryList"></search-box>
         <a-table :dataSource="dataSource" :columns="columns" :pagination="paginationProps" :loading="loading"
-            :customRow="customRow" :rowClassName="rowClassChange" bordered @change="handleChange" @expand="expandHandle"
+            :customRow="customRow" :rowClassName="rowClassChange" bordered @expand="expandHandle"
             :expandedRowKeys="expandedRowKeys">
             <template #bodyCell="{ column, text, record }">
                 <template v-if="column.key === 'action'">
@@ -61,19 +61,9 @@ const paginationProps = reactive({
 let dataSource = reactive([]);
 
 const stateList = ['未制作', '制作种', '制作完成', '制作失败'];
-const filters = [{
-    text: 'L',
-    value: 'L',
-}, {
-    text: 'N',
-    value: 'N',
-}, {
-    text: 'X',
-    value: 'X',
-}];
-const filteredInfo = ref();
+
 const columns = computed(() => {
-    const filtered = filteredInfo.value || {};
+
     return [{
         title: '模型id',
         dataIndex: 'modelId',
@@ -88,9 +78,6 @@ const columns = computed(() => {
         title: '设备类型',
         dataIndex: 'deviceType',
         key: 'deviceType',
-        filters: filters,
-        filteredValue: filtered.deviceType,
-        onFilter: (value, record) => record.deviceType.includes(value)
     },
     {
         title: '状态',
@@ -99,21 +86,6 @@ const columns = computed(() => {
         customRender: (state) => {
             return stateList[state.value];
         },
-        filters: [{
-            text: '未制作',
-            value: 0,
-        }, {
-            text: '制作中',
-            value: 1,
-        }, {
-            text: '制作完成',
-            value: 2,
-        }, {
-            text: '制作失败',
-            value: 3,
-        }],
-        filteredValue: filtered.state,
-        onFilter: (value, record) => record.state == value
     },
     {
         title: '创建时间',
@@ -142,11 +114,6 @@ const columns = computed(() => {
         key: 'action',
     }];
 });
-
-const handleChange = (pagination, filters, sorter) => {
-    filteredInfo.value = filters;
-    console.log(filters, sorter);
-};
 
 const changeSearch = (page, pageSize) => {
     current.value = page;
