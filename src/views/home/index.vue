@@ -1,7 +1,5 @@
 <template>
-    <div class="header">
-        <img src="~@/assets/home/logo_zi.png" alt="allfun" />
-    </div>
+    <basic-header></basic-header>
     <div class="container">
         <search-box @searchKey="queryList"></search-box>
         <a-table :dataSource="dataSource" :columns="columns" :pagination="paginationProps" :loading="loading"
@@ -38,11 +36,13 @@ import { ref, reactive, onMounted, computed } from 'vue';
 import { message } from 'ant-design-vue';
 import { SUCCESS_CODE } from '@/constant/index';
 import SearchBox from '@/components/searchBox.vue';
-import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData } from '@/api/chalk';
 import DrawingBox from '@/components/DrawingBox.vue';
-import { useUserStore } from '@/store/store';
+import BasicHeader from './components/BasicHeader.vue';
 
-const user_store = useUserStore();
+import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData } from '@/api/chalk';
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 // 列表
 let current = ref(1);
@@ -164,14 +164,17 @@ const queryList = (keyword, state, device) => {
         device: device ? device.join(',') : []
     };
     apiChalkList(queryParams).then(response => {
+        loading.value = false;
         if (response.code === SUCCESS_CODE) {
             total.value = response.data.count;
             dataSource = response.data.rows.map(item => {
                 item.key = item.id;
                 return item;
             });
+        } else {
+            router.push('/login');
         }
-        loading.value = false;
+
     }).catch(() => {
         loading.value = false;
     });
@@ -314,17 +317,6 @@ onMounted(() => {
 });
 </script>
 <style scoped lang="scss">
-.header {
-    width: 100%;
-    height: 50px;
-    background-color: #118cff;
-
-    img {
-        width: 170px;
-        height: 100%;
-    }
-}
-
 .container {
     width: 100%;
     background-color: #ffffff;
