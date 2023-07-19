@@ -40,6 +40,9 @@ import { SUCCESS_CODE } from '@/constant/index';
 import SearchBox from '@/components/searchBox.vue';
 import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData } from '@/api/chalk';
 import DrawingBox from '@/components/DrawingBox.vue';
+import { useUserStore } from '@/store/store';
+
+const user_store = useUserStore();
 
 // 列表
 let current = ref(1);
@@ -56,7 +59,6 @@ const paginationProps = reactive({
 });
 
 let dataSource = reactive([]);
-console.log('import.meta.env', import.meta.env);
 
 const stateList = ['未制作', '制作种', '制作完成', '制作失败'];
 const filters = [{
@@ -73,11 +75,6 @@ const filteredInfo = ref();
 const columns = computed(() => {
     const filtered = filteredInfo.value || {};
     return [{
-        title: '修模id',
-        dataIndex: 'chalkid',
-        key: 'chalkid'
-    },
-    {
         title: '模型id',
         dataIndex: 'modelId',
         key: 'modelId'
@@ -330,6 +327,7 @@ onMounted(() => {
 
 .container {
     width: 100%;
+    background-color: #ffffff;
 }
 
 .button-box .ant-btn {
