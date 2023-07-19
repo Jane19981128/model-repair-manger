@@ -41,8 +41,8 @@ import { debounce } from '../../../utils/index';
 
 const router = useRouter();
 
-const user_store = useUserStore();
-const { setUserInfo } = user_store;
+const userStore = useUserStore();
+const { setUserInfo } = userStore;
 
 const formRef = ref();
 const formData = reactive({

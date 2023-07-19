@@ -1,7 +1,10 @@
 import { defineStore, createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { computed, ref } from 'vue';
 
 export const store = createPinia();
+store.use(piniaPluginPersistedstate);
+
 const key = 'qtoken';
 
 export const useUserStore = defineStore('main', () => {
@@ -11,19 +14,22 @@ export const useUserStore = defineStore('main', () => {
     function setUserInfo(_username, _token) {
         username.value = _username;
         token.value = _token;
-        localStorage.setItem(key, _token);
     }
 
     function removeUser() {
         username.value = '';
         token.value = '';
-        localStorage.removeItem(key);
     }
 
     function getToken() {
-        token.value = localStorage.getItem(key);
         return token;
     }
 
-    return { username, token, setUserInfo, removeUser, getToken };
+    function getUsername() {
+        return username;
+    }
+
+    return { username, token, setUserInfo, removeUser, getToken, getUsername };
+}, {
+    persist: true
 });
