@@ -9,4 +9,8 @@ export const LOGIN_CODE = {
         code: 33002,
         message: '用户名或密码错误！'
     },
+    SIGN_EXPIRED: {
+        code: 32001,
+        message: '登录失效！'
+    },
 };

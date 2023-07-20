@@ -34,15 +34,17 @@
 import dayjs from 'dayjs';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { message } from 'ant-design-vue';
-import { SUCCESS_CODE } from '@/constant/index';
+import { SUCCESS_CODE, LOGIN_CODE } from '@/constant/index';
 import SearchBox from '@/components/searchBox.vue';
 import DrawingBox from '@/components/DrawingBox.vue';
 import BasicHeader from './components/BasicHeader.vue';
 
 import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData } from '@/api/chalk';
 
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+
 const router = useRouter();
+const route = useRoute();
 
 // 列表
 let current = ref(1);
@@ -60,7 +62,7 @@ const paginationProps = reactive({
 
 let dataSource = reactive([]);
 
-const stateList = ['未制作', '制作种', '制作完成', '制作失败'];
+const stateList = ['未提交', '已提交'];
 
 const columns = computed(() => {
 
@@ -80,13 +82,18 @@ const columns = computed(() => {
         key: 'deviceType',
     },
     {
-        title: '状态',
-        dataIndex: 'state',
-        key: 'state',
-        customRender: (state) => {
-            return stateList[state.value];
-        },
+        title: '备注',
+        dataIndex: 'remark',
+        key: 'remark',
     },
+    // {
+    //     title: '状态',
+    //     dataIndex: 'state',
+    //     key: 'state',
+    //     customRender: (state) => {
+    //         return stateList[state.value];
+    //     },
+    // },
     {
         title: '创建时间',
         dataIndex: 'createdAt',
@@ -121,14 +128,14 @@ const changeSearch = (page, pageSize) => {
     queryList();
 };
 
-const queryList = (keyword, state, device) => {
+const queryList = (keyword, device) => {
     loading.value = true;
     const queryParams = {
         pageSize: pageCount.value,
         pageNum: current.value,
         keyword: keyword ? keyword.value : '',
-        state: state ? state.join(',') : [],
-        device: device ? device.join(',') : []
+        // state: state ? state.join(',') : [],
+        deviceType: device ? device.join(',') : []
     };
     apiChalkList(queryParams).then(response => {
         loading.value = false;
@@ -138,10 +145,13 @@ const queryList = (keyword, state, device) => {
                 item.key = item.id;
                 return item;
             });
-        } else {
-            router.push('/login');
         }
 
+        else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
+            router.push('/login');
+        else {
+            message.error(response.msg);
+        }
     }).catch(() => {
         loading.value = false;
     });
@@ -174,17 +184,18 @@ const rowClassChange = (record) => {
  */
 const deleteRecord = (row) => {
     const queryParams = {
-        chalkid: row.chalkid,
-        recordId: row.id
+        modelId: row.modelId,
+        chalkId: row.chalkId
     };
     apiRecordDelete(queryParams).then(response => {
         if (response.code === SUCCESS_CODE) {
             const deleteRowIndex = innerData.arr.indexOf(row);
             innerData.arr.splice(deleteRowIndex, 1);
             message.success('删除成功！');
-        } else {
-            message.error(response.msg);
+        } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
             router.push('/login');
+        else {
+            message.error(response.msg);
         }
     });
 };
@@ -199,26 +210,25 @@ const innerData = reactive({
     arr: []
 });
 const expandedRowKeys = reactive([]);
-const discardList = ['正常', '废弃'];
 const innerColumns = reactive([{
     title: '模型id',
     dataIndex: 'modelId',
     key: 'modelId',
-}, {
+},
+{
+    title: '修模id',
+    dataIndex: 'chalkId',
+    key: 'chalkId'
+},
+{
     title: '状态',
-    dataIndex: 'state',
-    key: 'state',
+    dataIndex: 'submitState',
+    key: 'submitState',
     customRender: (state) => {
         return stateList[state.value];
     }
-}, {
-    title: '废弃',
-    dataIndex: 'discard',
-    key: 'discard',
-    customRender: (state) => {
-        return discardList[state.value];
-    }
-}, {
+},
+{
     title: '创建时间',
     dataIndex: 'createdAt',
     key: 'createdAt',
@@ -235,15 +245,17 @@ const innerColumns = reactive([{
             return dayjs(val.value).format('YYYY-MM-DD HH:mm:ss');
         }
     }
-}, {
-    title: '操作',
-    key: 'action',
-}]
+},
+    // {
+    // title: '操作',
+    // key: 'action',
+    // }
+]
 );
 
 const expandHandle = (expanded, record) => {
     if (expanded) {
-        apiChalkRecord(record.chalkid).then(response => {
+        apiChalkRecord(record.modelId).then(response => {
             if (response.code === SUCCESS_CODE) {
                 innerData.arr = response.data.map(element => {
                     element.modelId = record.modelId;
@@ -251,9 +263,10 @@ const expandHandle = (expanded, record) => {
                 });
                 expandedRowKeys.length = 0;
                 expandedRowKeys.push(record.key);
-            } else {
-                message.error(response.msg);
+            } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
                 router.push('/login');
+            else {
+                message.error(response.msg);
             }
         });
     } else {
@@ -266,14 +279,15 @@ let drawingBoxVisible = ref(false);
 let drawingData = reactive({});
 const detailDrawing = (row) => {
     loading.value = true;
-    apiDrawingData(row.chalkid).then(response => {
+    apiDrawingData(row.modelId).then(response => {
         loading.value = false;
         if (response.code === SUCCESS_CODE) {
             drawingData = reactive(response.data);
             drawingBoxVisible.value = true;
-        } else {
-            message.error(response.msg);
+        } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
             router.push('/login');
+        else {
+            message.error(response.msg);
         }
     });
 
@@ -283,6 +297,7 @@ const drawingBoxCancel = () => {
 };
 
 onMounted(() => {
+    console.log(route);
     queryList();
 });
 </script>

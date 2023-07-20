@@ -11,7 +11,7 @@ export function apiChalkList(queryParams) {
 
     return httpRequest({
         method: 'get',
-        url: `/manage/chalk`,
+        url: `/manage/model`,
         params: {
             ...queryParams
         },
@@ -21,10 +21,10 @@ export function apiChalkList(queryParams) {
     });
 };
 
-export function apiChalkRecord(chalkid) {
+export function apiChalkRecord(modelId) {
     return httpRequest({
         method: 'get',
-        url: `/manage/chalk/${chalkid}`,
+        url: `/manage/model/${modelId}`,
         headers: {
             Authorization: getToken().value
         }
@@ -32,20 +32,20 @@ export function apiChalkRecord(chalkid) {
 };
 
 export function apiRecordDelete(queryParams) {
-    const { chalkid, recordId } = queryParams;
+    const { modelId, chalkId } = queryParams;
     return httpRequest({
         method: 'delete',
-        url: `/manage/chalk/${chalkid}/record/${recordId}`,
+        url: `/manage/model/${modelId}/chalk/${chalkId}`,
         headers: {
             Authorization: getToken().value
         }
     });
 };
 
-export function apiDrawingData(chalkid) {
+export function apiDrawingData(modelId) {
     return httpRequest({
         method: 'get',
-        url: `/manage/chalk/${chalkid}/drawing`,
+        url: `/manage/model/${modelId}/drawing`,
         headers: {
             Authorization: getToken().value
         }

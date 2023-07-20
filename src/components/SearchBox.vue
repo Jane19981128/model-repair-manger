@@ -1,11 +1,10 @@
 <template>
     <div class="search-box">
-        <a-input-search v-model:value="search" placeholder="请输入修模id/模型id" enter-button="搜索"
-            @search="onSearch"></a-input-search>
+        <a-input-search v-model:value="search" placeholder="请输入模型id" enter-button="搜索" @search="onSearch"></a-input-search>
         <a-button type="link" @click="showCheckBoxChange">{{ openTip }}</a-button>
     </div>
     <div v-show="showCheckBox">
-        <a-row type="flex">
+        <!-- <a-row type="flex">
             <a-col flex="80px">状态：</a-col>
             <a-col flex="auto">
                 <a-checkbox :checked="checkState.checkAll" :indeterminate="checkState.indeterminate"
@@ -13,7 +12,7 @@
                     全选</a-checkbox>
                 <a-checkbox-group v-model:value="checkState.checkedList" :options="options.state" />
             </a-col>
-        </a-row>
+        </a-row> -->
         <a-row type="flex">
             <a-col flex="80px">设备类型：</a-col>
             <a-col flex="auto">
@@ -32,7 +31,7 @@ const emit = defineEmits(['searchKey']);
 const search = ref('');
 
 const onSearch = () => {
-    emit('searchKey', search, checkState.checkedList, checkDevice.checkedList);
+    emit('searchKey', search, checkDevice.checkedList);
 };
 
 /**
@@ -46,44 +45,44 @@ const showCheckBoxChange = () => {
 };
 
 const options = reactive({
-    state: [{
-        label: '未制作',
-        value: 0
-    }, {
-        label: '制作中',
-        value: 1
-    }, {
-        label: '制作完成',
-        value: 2
-    }, {
-        label: '制作失败',
-        value: 3
-    }],
+    // state: [{
+    //     label: '未制作',
+    //     value: 0
+    // }, {
+    //     label: '制作中',
+    //     value: 1
+    // }, {
+    //     label: '制作完成',
+    //     value: 2
+    // }, {
+    //     label: '制作失败',
+    //     value: 3
+    // }],
     device: ['N', 'L', 'X']
 });
 
 /**
  * 状态复选框控制
  */
-const checkState = reactive({
-    indeterminate: false,
-    checkAll: true,
-    checkedList: options.state.map(item => {
-        return item.value;
-    })
-});
+// const checkState = reactive({
+//     indeterminate: false,
+//     checkAll: true,
+//     checkedList: options.state.map(item => {
+//         return item.value;
+//     })
+// });
 
-const onCheckAllChange = (e) => {
-    const optionsState = options.state.map(item => {
-        return item.value;
-    });
-    checkState.checkedList = e.target.checked ? optionsState : [];
-};
+// const onCheckAllChange = (e) => {
+//     const optionsState = options.state.map(item => {
+//         return item.value;
+//     });
+//     checkState.checkedList = e.target.checked ? optionsState : [];
+// };
 
-watch(() => checkState.checkedList, val => {
-    checkState.indeterminate = !!val.length && val.length < options.state.length;
-    checkState.checkAll = val.length === options.state.length;
-});
+// watch(() => checkState.checkedList, val => {
+//     checkState.indeterminate = !!val.length && val.length < options.state.length;
+//     checkState.checkAll = val.length === options.state.length;
+// });
 
 /**
  * 设备类型复选框控制
