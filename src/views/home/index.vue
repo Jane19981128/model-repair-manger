@@ -6,6 +6,19 @@
             :customRow="customRow" :rowClassName="rowClassChange" bordered @expand="expandHandle"
             :expandedRowKeys="expandedRowKeys">
             <template #bodyCell="{ column, text, record }">
+                <template v-if="column.key === 'remark'">
+                    <div class="editable-cell">
+                        <div v-if="editableData[record.modelId]" class="editable-cell-input-wrapper">
+                            <a-input v-model:value="editableData[record.modelId].remark"
+                                @pressEnter="save(record.modelId)" />
+                            <check-outlined class="editable-cell-icon-check" @click="save(record.modelId)" />
+                        </div>
+                        <div v-else class="editable-cell-text-wrapper">
+                            {{ text }}
+                            <edit-outlined class="editable-cell-icon" @click="edit(record.modelId)" />
+                        </div>
+                    </div>
+                </template>
                 <template v-if="column.key === 'action'">
                     <div class="button-box">
                         <a-button type="primary" @click="detailDrawing(record)">详情</a-button>
@@ -15,7 +28,7 @@
             <template #expandedRowRender>
                 <a-table :columns="innerColumns" :data-source="innerData.arr" :pagination="false">
                     <template #bodyCell="{ column, text, record }">
-                        <template v-if="column.key === 'action' && record.discard">
+                        <template v-if="column.key === 'action'">
                             <div class="button-box">
                                 <a-popconfirm title="确定删除该修模记录？" ok-text="是" cancel-text="否" @confirm="deleteRecord(record)"
                                     @cancel="deleteRecordPlanCancel">
@@ -32,14 +45,16 @@
 </template>
 <script setup>
 import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash-es';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { message } from 'ant-design-vue';
+import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { SUCCESS_CODE, LOGIN_CODE } from '@/constant/index';
 import SearchBox from '@/components/searchBox.vue';
 import DrawingBox from '@/components/DrawingBox.vue';
 import BasicHeader from './components/BasicHeader.vue';
 
-import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData } from '@/api/chalk';
+import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData, apiModelChange } from '@/api/chalk';
 
 import { useRouter, useRoute } from 'vue-router';
 
@@ -170,6 +185,7 @@ const customRow = (record) => {
         onclick: onclickRow
     };
 };
+
 const rowClassChange = (record) => {
     if (record.chalkid === clickRow.value) {
         // return 'hight-light-row'
@@ -199,6 +215,7 @@ const deleteRecord = (row) => {
         }
     });
 };
+
 const deleteRecordPlanCancel = () => {
     message.info('取消删除！');
 };
@@ -292,8 +309,34 @@ const detailDrawing = (row) => {
     });
 
 };
+
 const drawingBoxCancel = () => {
     drawingBoxVisible.value = false;
+};
+
+/**
+ * 编辑备注
+ */
+const editableData = reactive({});
+const edit = value => {
+    editableData[value] = cloneDeep(dataSource.filter(item => value === item.modelId)[0]);
+};
+
+const save = async (modelId) => {
+    const data = {
+        modelId: modelId,
+        remark: editableData[modelId].remark
+    };
+
+    apiModelChange(data).then(response => {
+        if (response.code === SUCCESS_CODE) {
+            message.success('修改成功!');
+            queryList();
+        } else {
+            message.error(response.msg);
+        }
+        delete editableData[modelId];
+    });
 };
 
 onMounted(() => {

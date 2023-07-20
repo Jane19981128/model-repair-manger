@@ -51,3 +51,14 @@ export function apiDrawingData(modelId) {
         }
     });
 };
+
+export function apiModelChange(data) {
+    return httpRequest({
+        method: 'put',
+        url: `/manage/model/${data.modelId}`,
+        data: data,
+        headers: {
+            Authorization: getToken().value
+        }
+    });
+};
