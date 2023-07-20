@@ -43,6 +43,18 @@
         <drawing-box :visible="drawingBoxVisible" @modalCancel="drawingBoxCancel" :drawingData="drawingData"></drawing-box>
     </div>
 </template>
+<script>
+import { defineComponent } from 'vue';
+export default defineComponent({
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            if (from.path == '/login') {
+                vm.queryList();
+            }
+        });
+    }
+});
+</script>
 <script setup>
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
@@ -56,10 +68,10 @@ import BasicHeader from './components/BasicHeader.vue';
 
 import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData, apiModelChange } from '@/api/chalk';
 
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const route = useRoute();
+
 
 // 列表
 let current = ref(1);
@@ -171,6 +183,8 @@ const queryList = (keyword, device) => {
         loading.value = false;
     });
 };
+
+defineExpose({ queryList });
 
 /**
  * 选中行高亮
@@ -340,7 +354,6 @@ const save = async (modelId) => {
 };
 
 onMounted(() => {
-    console.log(route);
     queryList();
 });
 </script>
