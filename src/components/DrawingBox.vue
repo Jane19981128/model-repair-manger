@@ -5,7 +5,7 @@
                 <a-button key="submit" @click="handleOk" type="primary">确定</a-button>
             </template>
             <div class="modal-content">
-                <pre>{{ drawingData.drawing }}</pre>
+                <pre>{{ JSON.parse(drawingData.drawing) }}</pre>
             </div>
         </a-modal>
     </div>
@@ -23,6 +23,7 @@ const props = defineProps({
         default: ''
     }
 });
+
 const bodyStyle = {
     'padding': '10px 0px'
 };
