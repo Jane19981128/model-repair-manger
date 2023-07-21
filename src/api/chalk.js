@@ -42,10 +42,11 @@ export function apiRecordDelete(queryParams) {
     });
 };
 
-export function apiDrawingData(modelId) {
+export function apiDrawingData(query) {
     return httpRequest({
         method: 'get',
-        url: `/manage/model/${modelId}/drawing`,
+        url: `/manage/model/${query.modelId}/drawing`,
+        params: { chalkId: query.chalkId },
         headers: {
             Authorization: getToken().value
         }

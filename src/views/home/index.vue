@@ -29,12 +29,17 @@
                 <a-table :columns="innerColumns" :data-source="innerData.arr" :pagination="false">
                     <template #bodyCell="{ column, text, record }">
                         <template v-if="column.key === 'action'">
-                            <div class="button-box">
-                                <a-popconfirm title="确定删除该修模记录？" ok-text="是" cancel-text="否" @confirm="deleteRecord(record)"
+                            <a-space>
+                                <a-button type="primary" @click="detailDrawing(record)">修模详情</a-button>
+                                <!-- <a-popconfirm title=" 确定作废该修模记录？" ok-text="是" cancel-text="否"
+                                    @confirm="cancelRecord(record)" @cancel="cancelRecordCancel">
+                                    <a-button type="primary" danger>作废</a-button>
+                                </a-popconfirm> -->
+                                <!-- <a-popconfirm title="确定删除该修模记录？" ok-text="是" cancel-text="否" @confirm="deleteRecord(record)"
                                     @cancel="deleteRecordPlanCancel">
                                     <a-button type="primary" danger>删除</a-button>
-                                </a-popconfirm>
-                            </div>
+                                </a-popconfirm> -->
+                            </a-space>
                         </template>
                     </template>
                 </a-table>
@@ -212,27 +217,27 @@ const rowClassChange = (record) => {
 /**
  * 删除已废弃的修模记录
  */
-const deleteRecord = (row) => {
-    const queryParams = {
-        modelId: row.modelId,
-        chalkId: row.chalkId
-    };
-    apiRecordDelete(queryParams).then(response => {
-        if (response.code === SUCCESS_CODE) {
-            const deleteRowIndex = innerData.arr.indexOf(row);
-            innerData.arr.splice(deleteRowIndex, 1);
-            message.success('删除成功！');
-        } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
-            router.push('/login');
-        else {
-            message.error(response.msg);
-        }
-    });
-};
+// const deleteRecord = (row) => {
+//     const queryParams = {
+//         modelId: row.modelId,
+//         chalkId: row.chalkId
+//     };
+//     apiRecordDelete(queryParams).then(response => {
+//         if (response.code === SUCCESS_CODE) {
+//             const deleteRowIndex = innerData.arr.indexOf(row);
+//             innerData.arr.splice(deleteRowIndex, 1);
+//             message.success('删除成功！');
+//         } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
+//             router.push('/login');
+//         else {
+//             message.error(response.msg);
+//         }
+//     });
+// };
 
-const deleteRecordPlanCancel = () => {
-    message.info('取消删除！');
-};
+// const deleteRecordPlanCancel = () => {
+//     message.info('取消删除！');
+// };
 
 /**
  * 反复修模记录
@@ -241,46 +246,42 @@ const innerData = reactive({
     arr: []
 });
 const expandedRowKeys = reactive([]);
-const innerColumns = reactive([{
-    title: '模型id',
-    dataIndex: 'modelId',
-    key: 'modelId',
-},
-{
-    title: '修模id',
-    dataIndex: 'chalkId',
-    key: 'chalkId'
-},
-{
-    title: '状态',
-    dataIndex: 'submitState',
-    key: 'submitState',
-    customRender: (state) => {
-        return stateList[state.value];
-    }
-},
-{
-    title: '创建时间',
-    dataIndex: 'createdAt',
-    key: 'createdAt',
-    customRender: (val) => {
-        return dayjs(val.value).format('YYYY-MM-DD HH:mm:ss');
-    }
-},
-{
-    title: '更新时间',
-    dataIndex: 'updatedAt',
-    key: 'updatedAt',
-    customRender: (val) => {
-        if (val.value) {
+const innerColumns = reactive([
+    {
+        title: '修模id',
+        dataIndex: 'chalkId',
+        key: 'chalkId'
+    },
+    {
+        title: '状态',
+        dataIndex: 'submitState',
+        key: 'submitState',
+        customRender: (state) => {
+            return stateList[state.value];
+        }
+    },
+    {
+        title: '创建时间',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+        customRender: (val) => {
             return dayjs(val.value).format('YYYY-MM-DD HH:mm:ss');
         }
+    },
+    {
+        title: '更新时间',
+        dataIndex: 'updatedAt',
+        key: 'updatedAt',
+        customRender: (val) => {
+            if (val.value) {
+                return dayjs(val.value).format('YYYY-MM-DD HH:mm:ss');
+            }
+        }
+    },
+    {
+        title: '操作',
+        key: 'action',
     }
-},
-    // {
-    // title: '操作',
-    // key: 'action',
-    // }
 ]
 );
 
@@ -310,7 +311,12 @@ let drawingBoxVisible = ref(false);
 let drawingData = reactive({});
 const detailDrawing = (row) => {
     loading.value = true;
-    apiDrawingData(row.modelId).then(response => {
+    const query = {
+        modelId: row.modelId,
+        chalkId: row.chalkId
+    };
+
+    apiDrawingData(query).then(response => {
         loading.value = false;
         if (response.code === SUCCESS_CODE) {
             drawingData = reactive(response.data);
@@ -361,10 +367,6 @@ onMounted(() => {
 .container {
     width: 100%;
     background-color: #ffffff;
-}
-
-.button-box .ant-btn {
-    margin-right: 8px;
 }
 
 .hight-light-row {
