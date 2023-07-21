@@ -31,10 +31,10 @@
                         <template v-if="column.key === 'action'">
                             <a-space>
                                 <a-button type="primary" @click="detailDrawing(record)">修模详情</a-button>
-                                <!-- <a-popconfirm title=" 确定作废该修模记录？" ok-text="是" cancel-text="否"
-                                    @confirm="cancelRecord(record)" @cancel="cancelRecordCancel">
-                                    <a-button type="primary" danger>作废</a-button>
-                                </a-popconfirm> -->
+                                <a-popconfirm :title="record.submitState == 2 ? '确定取消作废？' : '确定作废？'" ok-text="是"
+                                    cancel-text="否" @confirm="recordHandle(record)" @cancel="cancelRecordHandel">
+                                    <a-button type="primary" danger>{{ record.submitState == 2 ? '取消作废' : '作废' }}</a-button>
+                                </a-popconfirm>
                                 <!-- <a-popconfirm title="确定删除该修模记录？" ok-text="是" cancel-text="否" @confirm="deleteRecord(record)"
                                     @cancel="deleteRecordPlanCancel">
                                     <a-button type="primary" danger>删除</a-button>
@@ -71,7 +71,10 @@ import SearchBox from '@/components/searchBox.vue';
 import DrawingBox from '@/components/DrawingBox.vue';
 import BasicHeader from './components/BasicHeader.vue';
 
-import { apiChalkList, apiChalkRecord, apiRecordDelete, apiDrawingData, apiModelChange } from '@/api/chalk';
+import {
+    apiChalkList, apiChalkRecord, apiRecordDelete,
+    apiDrawingData, apiModelChange, apiRecordCancel
+} from '@/api/chalk';
 
 import { useRouter } from 'vue-router';
 
@@ -94,7 +97,7 @@ const paginationProps = reactive({
 
 let dataSource = reactive([]);
 
-const stateList = ['未提交', '已提交'];
+const stateList = ['未提交', '已提交', '已作废'];
 
 const columns = computed(() => {
 
@@ -240,11 +243,41 @@ const rowClassChange = (record) => {
 // };
 
 /**
+ * 废弃修模记录
+ */
+const recordHandle = (row) => {
+    const queryParams = {
+        modelId: row.modelId,
+        chalkId: row.chalkId,
+        submitState: row.submitState ? 0 : 2
+    };
+    apiRecordCancel(queryParams).then(response => {
+        if (response.code === SUCCESS_CODE) {
+            const model = dataSource.filter(item => {
+                return item.modelId === row.modelId;
+            });
+            expandHandle(true, model[0]);
+            message.success('操作成功！');
+        } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
+            router.push('/login');
+        else {
+            message.error(response.msg);
+        }
+    });
+};
+
+const cancelRecordHandel = () => {
+    message.info('取消操作！');
+};
+
+/**
  * 反复修模记录
  */
 const innerData = reactive({
     arr: []
 });
+
+const recordHandleTitle = ref('');
 const expandedRowKeys = reactive([]);
 const innerColumns = reactive([
     {
@@ -293,6 +326,7 @@ const expandHandle = (expanded, record) => {
                     element.modelId = record.modelId;
                     return element;
                 });
+
                 expandedRowKeys.length = 0;
                 expandedRowKeys.push(record.key);
             } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)

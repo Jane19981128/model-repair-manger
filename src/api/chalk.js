@@ -63,3 +63,17 @@ export function apiModelChange(data) {
         }
     });
 };
+
+export function apiRecordCancel(queryParams) {
+    const { modelId, chalkId } = queryParams;
+    return httpRequest({
+        method: 'put',
+        url: `/manage/model/${modelId}/chalk/${chalkId}`,
+        params: {
+            submitState: queryParams.submitState
+        },
+        headers: {
+            Authorization: getToken().value
+        }
+    });
+};
