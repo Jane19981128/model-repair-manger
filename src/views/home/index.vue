@@ -200,7 +200,7 @@ defineExpose({ queryList });
 const clickRow = ref('');
 const customRow = (record) => {
     const onclickRow = (e) => {
-        clickRow.value = record.chalkid;
+        clickRow.value = record.modelId;
     };
 
     return {
@@ -209,7 +209,7 @@ const customRow = (record) => {
 };
 
 const rowClassChange = (record) => {
-    if (record.chalkid === clickRow.value) {
+    if (record.modelId === clickRow.value) {
         // return 'hight-light-row'
         return 'ant-table-row-selected';
     }
