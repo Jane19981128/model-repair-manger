@@ -4,25 +4,74 @@
             <template #footer>
                 <a-button key="submit" @click="handleOk" type="primary">确定</a-button>
             </template>
-            <div class="modal-content">
-                <pre>{{ JSON.parse(drawingData.drawing) }}</pre>
+            <div v-if="type === 'ECHARTS'">
+                <pre-echarts :data="echartData" :bgImageList="bgImageList"></pre-echarts>
+            </div>
+            <div class="modal-content" v-if="type === 'JSON'">
+                <json-viewer :value="drawing" :expand-depth=10 :copyable="true" collapse></json-viewer>
             </div>
         </a-modal>
     </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
+import { apiFloorModel } from '@/api/m100';
+import PreEcharts from './echarts/PreEcharts.vue';
+import { SUCCESS_CODE } from '@/constant/index';
+
 const emit = defineEmits(['modalCancel']);
 const props = defineProps({
     visible: {
         type: Boolean,
         default: false
     },
+    type: {
+        //type可选值JSON，ECHARTS
+        type: String,
+        default: 'JSON'
+    },
     drawingData: {
         type: Object,
-        default: ''
+        default: {}
     }
 });
+
+let drawing;
+watch(() => props.visible, async (newVal) => {
+    if (newVal) {
+        drawing = reactive(JSON.parse(props.drawingData.drawing ?? {}));
+        await formatEchartsData(drawing);
+    }
+
+});
+
+let echartData = [];
+let bgImageList = ref('');
+const formatEchartsData = async (drawing) => {
+    if (props.type === "ECHARTS") {
+        echartData = reactive(drawing.list ?? []);
+        bgImageList.value = await getFloorImage();
+    }
+};
+
+const getFloorImage = async () => {
+    const { modelId, modelVersion } = props.drawingData;
+    const queryData = {
+        model_id: modelId,
+        model_version: modelVersion
+    };
+
+    const response = await apiFloorModel(queryData);
+    const bgImageList = [];
+
+    if (response.code === SUCCESS_CODE) {
+        response.data.forEach(item => {
+            bgImageList.push(item.info.planformUrl);
+        });
+    }
+
+    return bgImageList;
+};
 
 const bodyStyle = {
     'padding': '10px 0px'

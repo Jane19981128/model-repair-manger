@@ -20,9 +20,10 @@
                     </div>
                 </template>
                 <template v-if="column.key === 'action'">
-                    <div class="button-box">
-                        <a-button type="primary" @click="detailDrawing(record)">详情</a-button>
-                    </div>
+                    <a-space>
+                        <a-button type="primary" @click="detailDrawing(record, 'ECHARTS')">预览</a-button>
+                        <a-button type="primary" @click="detailDrawing(record, 'JSON')">详情</a-button>
+                    </a-space>
                 </template>
             </template>
             <template #expandedRowRender>
@@ -45,7 +46,8 @@
                 </a-table>
             </template>
         </a-table>
-        <drawing-box :visible="drawingBoxVisible" @modalCancel="drawingBoxCancel" :drawingData="drawingData"></drawing-box>
+        <drawing-box :visible="drawingBoxVisible" @modalCancel="drawingBoxCancel" :drawingData="drawingData"
+            :type="previewType"></drawing-box>
     </div>
 </template>
 <script>
@@ -342,9 +344,11 @@ const expandHandle = (expanded, record) => {
 
 //查询详情
 let drawingBoxVisible = ref(false);
+let previewType = "JSON";
 let drawingData = reactive({});
-const detailDrawing = (row) => {
+const detailDrawing = (row, type) => {
     loading.value = true;
+    previewType = type;
     const query = {
         modelId: row.modelId,
         chalkId: row.chalkId
@@ -354,6 +358,9 @@ const detailDrawing = (row) => {
         loading.value = false;
         if (response.code === SUCCESS_CODE) {
             drawingData = reactive(response.data);
+            //为了从M100获取户型图数据，准备参数
+            drawingData.modelId = row.modelId;
+            drawingData.modelVersion = row.modelVersion;
             drawingBoxVisible.value = true;
         } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
             router.push('/login');
