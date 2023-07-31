@@ -5,7 +5,10 @@
 </template>
 <script setup>
 import { ref, reactive, onMounted, watch, nextTick } from 'vue';
+import { message } from 'ant-design-vue';
 import * as echarts from 'echarts';
+
+import request from '../../request/index';
 
 const props = defineProps({
     data: {
@@ -13,8 +16,7 @@ const props = defineProps({
         default: () => []
     },
     bgImageList: {
-        type: [Array, String],
-        default: () => []
+        type: [Array, String]
     }
 });
 
@@ -45,23 +47,46 @@ const repairType = new Map([
 
 onMounted(() => {
     myEchart = initEchart();
-    changeEchart(myEchart);
-});
 
-watch(() => props.data, () => {
-    changeEchart(myEchart);
-});
+    if (!props.bgImageList) {
+        bgImage.value = '';
+        return message.error('户型图缺失！');
+    }
 
-watch(() => props.bgImageList, (newVal) => {
     bgImage.value = props.bgImageList[0];
-    setBgImageSize(bgImage.value);
+    changeEchart(myEchart);
+});
+
+watch([() => props.bgImageList, () => props.data], () => {
+    if (!props.bgImageList) {
+        bgImage.value = '';
+        myEchart.setOption({ series: [], }, formatOptions());
+        return message.error('户型图缺失！');
+    }
+
+    bgImage.value = props.bgImageList[0];
+    changeEchart(myEchart);
 
 });
 
-const changeEchart = (echartsInstance) => {
+let imageHeight = ref(500);
+const changeEchart = async (echartsInstance) => {
     const [curFloorChalk, legend] = getCurFloorDrawing(0);
-    const [edgeMax, edgeMin] = edgeValue(curFloorChalk);
-    const optionsOther = formatOptions(['legend', 'xAxis', 'yAxis']);
+    const optionsOther = formatOptions(['legend']);
+
+    const { width, height } = await fetchOSSFileProp(bgImage.value);
+    const floorSize = {
+        width: width / 200,
+        height: height / 200
+    };
+
+    const [edgeMax, edgeMin] = edgeValue(curFloorChalk, floorSize);
+    const newHeight = (Math.abs(edgeMax) + Math.abs(edgeMin)) * 100;
+    imageHeight.value = (newHeight / width) * 500 + 20;
+
+    nextTick(() => {
+        echartsInstance.resize();
+    });
 
     const axis = {
         max: edgeMax,
@@ -79,18 +104,25 @@ const changeEchart = (echartsInstance) => {
 
 };
 
-let imageHeight = ref(500);
-const setBgImageSize = (url) => {
-    var img = new Image();
-    img.src = url;
-    img.onload = () => {
-        imageHeight.value = (img.height / img.width) * 520 + 20;
+// 获取oss图片宽高信息
+async function fetchOSSFileProp(url) {
+    try {
+        const OSS_INFO_QUERY = 'x-oss-process=image/info';
 
-        nextTick(() => {
-            myEchart.resize();
-        });
-    };
-};
+        const imageInfo = await request
+            .get(`${url}?${OSS_INFO_QUERY}`);
+
+        return {
+            width: parseInt(imageInfo.ImageWidth.value),
+            height: parseInt(imageInfo.ImageHeight.value)
+        };
+    } catch (error) {
+        return {
+            width: 0,
+            height: 0
+        };
+    }
+}
 
 const getCurFloorDrawing = (i) => {
     const chalkList = props.data[i]?.drawing?.chalkList;
@@ -125,7 +157,7 @@ const getCurFloorDrawing = (i) => {
     return [];
 };
 
-const edgeValue = (array) => {
+const edgeValue = (array, floorSize) => {
     const newArray = [];
 
     array.forEach(item => {
@@ -139,12 +171,15 @@ const edgeValue = (array) => {
 
     });
 
-    return [Math.max(...newArray), Math.min(...newArray)];
+    return [
+        Math.max(...newArray, floorSize.width, floorSize.height),
+        Math.min(...newArray, -floorSize.width, -floorSize.height)
+    ];
 };
 
 
 /**
- * 初始化echarts图标
+ * 初始化echarts图表
  */
 const chalkEcharts = ref(null);
 const initEchart = () => {
@@ -153,15 +188,12 @@ const initEchart = () => {
 
     let option = {
         grid: {
-            left: '0px',
-            right: '0px',
+            left: '10px',
+            right: '10px',
             bottom: '0px',
             top: '20px',
             containLabel: false
         },
-        // legend: {
-        //     data: repairType
-        // },
         xAxis: {
             min: -10,
             max: 10
@@ -183,7 +215,7 @@ const initEchart = () => {
 .myEchart {
     width: 100%;
     // background-color: aqua;
-    background-size: contain;
+    background-size: 500px auto;
     background-repeat: no-repeat;
     background-position: 50% calc(50% + 10px);
 }

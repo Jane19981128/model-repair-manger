@@ -359,8 +359,8 @@ const detailDrawing = (row, type) => {
         if (response.code === SUCCESS_CODE) {
             drawingData = reactive(response.data);
             //为了从M100获取户型图数据，准备参数
-            drawingData.modelId = row.modelId;
-            drawingData.modelVersion = row.modelVersion;
+            // drawingData.modelId = row.modelId;
+            // drawingData.modelVersion = row.modelVersion;
             drawingBoxVisible.value = true;
         } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
             router.push('/login');

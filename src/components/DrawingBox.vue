@@ -37,41 +37,41 @@ const props = defineProps({
 });
 
 let drawing;
-watch(() => props.visible, async (newVal) => {
+watch(() => props.visible, (newVal) => {
     if (newVal) {
         drawing = reactive(JSON.parse(props.drawingData.drawing ?? {}));
-        await formatEchartsData(drawing);
+        formatEchartsData(drawing);
     }
 
 });
 
 let echartData = [];
 let bgImageList = ref('');
-const formatEchartsData = async (drawing) => {
+const formatEchartsData = (drawing) => {
     if (props.type === "ECHARTS") {
+        bgImageList.value = JSON.parse(props.drawingData.mapUrl);
         echartData = reactive(drawing.list ?? []);
-        bgImageList.value = await getFloorImage();
     }
 };
 
-const getFloorImage = async () => {
-    const { modelId, modelVersion } = props.drawingData;
-    const queryData = {
-        model_id: modelId,
-        model_version: modelVersion
-    };
+// const getFloorImage = async () => {
+//     const { modelId, modelVersion } = props.drawingData;
+//     const queryData = {
+//         model_id: modelId,
+//         model_version: modelVersion
+//     };
 
-    const response = await apiFloorModel(queryData);
-    const bgImageList = [];
+//     const response = await apiFloorModel(queryData);
+//     const bgImageList = [];
 
-    if (response.code === SUCCESS_CODE) {
-        response.data.forEach(item => {
-            bgImageList.push(item.info.planformUrl);
-        });
-    }
+//     if (response.code === SUCCESS_CODE) {
+//         response.data.forEach(item => {
+//             bgImageList.push(item.info.planformUrl);
+//         });
+//     }
 
-    return bgImageList;
-};
+//     return bgImageList;
+// };
 
 const bodyStyle = {
     'padding': '10px 0px'
