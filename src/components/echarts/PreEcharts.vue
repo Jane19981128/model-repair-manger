@@ -84,7 +84,7 @@ const changeEchart = async (echartsInstance) => {
 
     let { xAxisMax, yAxisMax } = edgeValue(curFloorChalk, floorSize);
     xAxisMax = xAxisMax + 0.2;
-    yAxisMax = yAxisMax + 0.2;
+    yAxisMax = yAxisMax + 0.3;
 
     bgWidth.value = (width / 200) * 500 / xAxisMax;
     const newHeight = (Math.abs(yAxisMax) * 2) * 100;
