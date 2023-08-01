@@ -65,6 +65,7 @@ onMounted(() => {
 });
 
 watch([() => props.bgImageList, () => props.data], () => {
+    initSelect();
     changeEchart(myEchart, 0);
     spinning.value = false;
 });
