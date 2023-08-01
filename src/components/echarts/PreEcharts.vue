@@ -1,5 +1,6 @@
 <template>
-    <div class="myEchart" :style="{ 'height': `${imageHeight}px`, 'background-image': `url(${bgImage})` }"
+    <div class="myEchart"
+        :style="{ 'height': `${imageHeight}px`, 'background-image': `url(${bgImage})`, 'background-size': `${bgWidth}px auto` }"
         ref="chalkEcharts">
     </div>
 </template>
@@ -40,6 +41,7 @@ const formatOptions = (replaceMerge = [], options = {}) => {
  */
 
 let bgImage = ref('');
+let bgWidth = ref(500);
 let myEchart;
 const repairType = new Map([
     ['trim', '裁剪'], ['window', '窗'], ['mirror', '镜子'], ['wall', '补墙']
@@ -80,28 +82,34 @@ const changeEchart = async (echartsInstance) => {
         height: height / 200
     };
 
-    let [edgeMax, edgeMin] = edgeValue(curFloorChalk, floorSize);
+    let { xAxisMax, yAxisMax } = edgeValue(curFloorChalk, floorSize);
     // edgeMax = edgeMax + 0.2;
     // edgeMin = edgeMin - 0.2;
 
-    const newHeight = (Math.abs(edgeMax) + Math.abs(edgeMin)) * 100;
-    imageHeight.value = (newHeight / width) * 500 + 20;
+    bgWidth.value = (width / 200) * 500 / xAxisMax;
+    const newHeight = (Math.abs(yAxisMax) * 2) * 100;
+    imageHeight.value = (newHeight / width) * bgWidth.value + 20;
 
     nextTick(() => {
         echartsInstance.resize();
     });
 
-    const axis = {
-        max: edgeMax,
-        min: edgeMin
+    const xAxis = {
+        max: xAxisMax,
+        min: -xAxisMax
+    };
+
+    const yAxis = {
+        max: yAxisMax,
+        min: -yAxisMax
     };
 
     echartsInstance.setOption(
         {
             series: curFloorChalk,
             legend: { data: legend },
-            xAxis: axis,
-            yAxis: axis
+            xAxis: xAxis,
+            yAxis: yAxis
         },
         optionsOther);
 
@@ -161,23 +169,27 @@ const getCurFloorDrawing = (i) => {
 };
 
 const edgeValue = (array, floorSize) => {
-    const newArray = [];
+    const xAxisArray = [];
+    const yAxisArray = [];
 
     array.forEach(item => {
         if (Array.isArray(item.data)) {
             const data = item.data;
 
             data.forEach(point => {
-                newArray.push(...point);
+                xAxisArray.push(Math.abs(point[0]));
+                yAxisArray.push(Math.abs(point[1]));
             });
         }
 
     });
 
-    return [
-        Math.max(...newArray, floorSize.width, floorSize.height),
-        Math.min(...newArray, -floorSize.width, -floorSize.height)
-    ];
+    return {
+        xAxisMax: Math.max(...xAxisArray, floorSize.width),
+        yAxisMax: Math.max(...yAxisArray, floorSize.height)
+    };
+
+
 };
 
 
@@ -218,7 +230,6 @@ const initEchart = () => {
 .myEchart {
     width: 100%;
     // background-color: aqua;
-    background-size: 500px auto;
     background-repeat: no-repeat;
     background-position: 50% calc(50% + 10px);
 }
