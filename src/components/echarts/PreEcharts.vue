@@ -149,7 +149,7 @@ const getCurFloorDrawing = (i) => {
 
             const options = {
                 name,
-                symbolSize: 10,
+                symbolSize: 8,
                 // symbol: 'triangle',
                 // endLabel: {
                 //     show: true,
