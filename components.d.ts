@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     APopconfirm: typeof import('ant-design-vue/es')['Popconfirm']
     AResult: typeof import('ant-design-vue/es')['Result']
     ARow: typeof import('ant-design-vue/es')['Row']
+    ASelect: typeof import('ant-design-vue/es')['Select']
     ASpace: typeof import('ant-design-vue/es')['Space']
     ASpin: typeof import('ant-design-vue/es')['Spin']
     ATable: typeof import('ant-design-vue/es')['Table']

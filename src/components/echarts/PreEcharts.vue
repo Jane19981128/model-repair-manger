@@ -1,4 +1,10 @@
 <template>
+    <div style="padding-left: 10px;">
+        <a-space>
+            <span>楼层:</span>
+            <a-select v-model:value="level" style="width: 120px;" :options="levelList" @change="levelChange"></a-select>
+        </a-space>
+    </div>
     <a-spin :spinning="spinning">
         <div class="myEchart"
             :style="{ 'height': `${imageHeight}px`, 'background-image': `url(${bgImage})`, 'background-size': `${bgWidth}px auto` }"
@@ -52,27 +58,28 @@ const repairType = new Map([
 ]);
 
 onMounted(() => {
+    initSelect();
     myEchart = initEchart();
-    changeEchart(myEchart);
+    changeEchart(myEchart, 0);
     spinning.value = false;
 });
 
 watch([() => props.bgImageList, () => props.data], () => {
-    changeEchart(myEchart);
+    changeEchart(myEchart, 0);
     spinning.value = false;
 });
 
 let imageHeight = ref(500);
-const changeEchart = async (echartsInstance) => {
+const changeEchart = async (echartsInstance, level) => {
     if (!props.bgImageList) {
         bgImage.value = '';
         echartsInstance.setOption({ series: [], }, formatOptions());
         return message.error('户型图缺失！');
     }
 
-    bgImage.value = props.bgImageList[0];
+    bgImage.value = props.bgImageList[level];
 
-    const [curFloorChalk, legend] = getCurFloorDrawing(0);
+    const [curFloorChalk, legend] = getCurFloorDrawing(level);
     const optionsOther = formatOptions(['legend']);
 
     const { width, height } = await fetchOSSFileProp(bgImage.value);
@@ -111,7 +118,6 @@ const changeEchart = async (echartsInstance) => {
             yAxis: yAxis
         },
         optionsOther);
-
 };
 
 // 获取oss图片宽高信息
@@ -161,6 +167,7 @@ const getCurFloorDrawing = (i) => {
 
             return formatSeries(lineList, options);
         });
+
         return [pointList, legend];
     }
 
@@ -187,19 +194,14 @@ const edgeValue = (array, floorSize) => {
         xAxisMax: Math.max(...xAxisArray, floorSize.width),
         yAxisMax: Math.max(...yAxisArray, floorSize.height)
     };
-
-
 };
-
 
 /**
  * 初始化echarts图表
  */
 const chalkEcharts = ref(null);
 const initEchart = () => {
-
     let chalkEchart = echarts.init(chalkEcharts.value);
-
     const axisDefault = {
         axisLabel: {
             show: false,
@@ -225,7 +227,23 @@ const initEchart = () => {
     return chalkEchart;
 };
 
+//楼层切换
+const level = ref(0);
+const levelList = ref([]);
+const initSelect = () => {
+    levelList.value = props.data.map(item => {
+        return {
+            value: item.level,
+            label: item.name
+        };
+    });
 
+    level.value = levelList.value[0].value;
+};
+
+const levelChange = (value) => {
+    changeEchart(myEchart.value);
+};
 </script>
 <style scoped lang="scss">
 .myEchart {
