@@ -80,7 +80,10 @@ const changeEchart = async (echartsInstance) => {
         height: height / 200
     };
 
-    const [edgeMax, edgeMin] = edgeValue(curFloorChalk, floorSize);
+    let [edgeMax, edgeMin] = edgeValue(curFloorChalk, floorSize);
+    // edgeMax = edgeMax + 0.2;
+    // edgeMin = edgeMin - 0.2;
+
     const newHeight = (Math.abs(edgeMax) + Math.abs(edgeMin)) * 100;
     imageHeight.value = (newHeight / width) * 500 + 20;
 
