@@ -238,7 +238,7 @@ const initSelect = () => {
         };
     });
 
-    level.value = levelList.value[0].value;
+    level.value = levelList.value[0]?.value;
 };
 
 const levelChange = (value) => {
