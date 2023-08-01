@@ -1,8 +1,10 @@
 <template>
-    <div class="myEchart"
-        :style="{ 'height': `${imageHeight}px`, 'background-image': `url(${bgImage})`, 'background-size': `${bgWidth}px auto` }"
-        ref="chalkEcharts">
-    </div>
+    <a-spin :spinning="spinning">
+        <div class="myEchart"
+            :style="{ 'height': `${imageHeight}px`, 'background-image': `url(${bgImage})`, 'background-size': `${bgWidth}px auto` }"
+            ref="chalkEcharts">
+        </div>
+    </a-spin>
 </template>
 <script setup>
 import { ref, reactive, onMounted, watch, nextTick } from 'vue';
@@ -10,6 +12,8 @@ import { message } from 'ant-design-vue';
 import * as echarts from 'echarts';
 
 import request from '../../request/index';
+
+const spinning = ref(true);
 
 const props = defineProps({
     data: {
@@ -49,30 +53,25 @@ const repairType = new Map([
 
 onMounted(() => {
     myEchart = initEchart();
-
-    if (!props.bgImageList) {
-        bgImage.value = '';
-        return message.error('户型图缺失！');
-    }
-
-    bgImage.value = props.bgImageList[0];
     changeEchart(myEchart);
+    spinning.value = false;
 });
 
 watch([() => props.bgImageList, () => props.data], () => {
-    if (!props.bgImageList) {
-        bgImage.value = '';
-        myEchart.setOption({ series: [], }, formatOptions());
-        return message.error('户型图缺失！');
-    }
-
-    bgImage.value = props.bgImageList[0];
     changeEchart(myEchart);
-
+    spinning.value = false;
 });
 
 let imageHeight = ref(500);
 const changeEchart = async (echartsInstance) => {
+    if (!props.bgImageList) {
+        bgImage.value = '';
+        echartsInstance.setOption({ series: [], }, formatOptions());
+        return message.error('户型图缺失！');
+    }
+
+    bgImage.value = props.bgImageList[0];
+
     const [curFloorChalk, legend] = getCurFloorDrawing(0);
     const optionsOther = formatOptions(['legend']);
 
@@ -201,6 +200,14 @@ const initEchart = () => {
 
     let chalkEchart = echarts.init(chalkEcharts.value);
 
+    const axisDefault = {
+        axisLabel: {
+            show: false,
+        },
+        min: -10,
+        max: 10
+    };
+
     let option = {
         grid: {
             left: '10px',
@@ -209,14 +216,8 @@ const initEchart = () => {
             top: '20px',
             containLabel: false
         },
-        xAxis: {
-            min: -10,
-            max: 10
-        },
-        yAxis: {
-            min: -10,
-            max: 10
-        }
+        xAxis: axisDefault,
+        yAxis: axisDefault
     };
 
     chalkEchart.setOption(option);
