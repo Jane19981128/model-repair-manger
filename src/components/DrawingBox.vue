@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-modal :visible="visible" title="模型标记" @ok="handleOk" @cancel="handleOk" :body-style="bodyStyle">
+        <a-modal :visible="visible" title="模型标记" @ok="handleOk" @cancel="handleOk" :body-style="bodyStyle" :width="620">
             <template #footer>
                 <a-button key="submit" @click="handleOk" type="primary">确定</a-button>
             </template>

@@ -1,5 +1,5 @@
 <template>
-    <div style="padding-left: 10px;">
+    <div style="padding-left: 10px;padding-bottom: 5px;">
         <a-space>
             <span>楼层:</span>
             <a-select v-model:value="level" style="width: 120px;" :options="levelList" @change="levelChange"></a-select>
@@ -7,7 +7,7 @@
     </div>
     <a-spin :spinning="spinning">
         <div class="myEchart"
-            :style="{ 'height': `${imageHeight}px`, 'background-image': `url(${bgImage})`, 'background-size': `${bgWidth}px auto` }"
+            :style="{ 'height': `${echartHeight}px`, 'background-image': `url(${bgImage})`, 'background-size': `${bgWidth}px auto` }"
             ref="chalkEcharts">
         </div>
     </a-spin>
@@ -51,17 +51,21 @@ const formatOptions = (replaceMerge = [], options = {}) => {
  */
 
 let bgImage = ref('');
-let bgWidth = ref(500);
+let bgWidth = ref(0);
+let echartWidth = ref(500);
+let echartHeight = ref(500);
 let myEchart;
 const repairType = new Map([
     ['trim', '裁剪'], ['window', '窗'], ['mirror', '镜子'], ['wall', '补墙']
 ]);
 
 onMounted(() => {
+    echartWidth.value = chalkEcharts.value.offsetWidth - 20;
     initSelect();
     myEchart = initEchart();
     changeEchart(myEchart, 0);
     spinning.value = false;
+
 });
 
 watch([() => props.bgImageList, () => props.data], () => {
@@ -70,7 +74,6 @@ watch([() => props.bgImageList, () => props.data], () => {
     spinning.value = false;
 });
 
-let imageHeight = ref(500);
 const changeEchart = async (echartsInstance, level) => {
     if (!props.bgImageList) {
         bgImage.value = '';
@@ -93,9 +96,9 @@ const changeEchart = async (echartsInstance, level) => {
     xAxisMax = xAxisMax + 0.2;
     yAxisMax = yAxisMax + 0.3;
 
-    bgWidth.value = (width / 200) * 500 / xAxisMax;
+    bgWidth.value = (width / 200) * echartWidth.value / xAxisMax;
     const newHeight = (Math.abs(yAxisMax) * 2) * 100;
-    imageHeight.value = (newHeight / width) * bgWidth.value + 20;
+    echartHeight.value = (newHeight / width) * bgWidth.value + 20;
 
     nextTick(() => {
         echartsInstance.resize();
@@ -114,7 +117,12 @@ const changeEchart = async (echartsInstance, level) => {
     echartsInstance.setOption(
         {
             series: curFloorChalk,
-            legend: { data: legend },
+            legend: {
+                data: legend,
+                textStyle: {
+                    color: '#ffffff'
+                }
+            },
             xAxis: xAxis,
             yAxis: yAxis
         },
@@ -249,7 +257,7 @@ const levelChange = (value) => {
 <style scoped lang="scss">
 .myEchart {
     width: 100%;
-    // background-color: aqua;
+    background-color: rgba(0, 0, 0, 0.7);
     background-repeat: no-repeat;
     background-position: 50% calc(50% + 10px);
 }
