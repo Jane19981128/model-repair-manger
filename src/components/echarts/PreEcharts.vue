@@ -105,11 +105,21 @@ const changeEchart = async (echartsInstance, level) => {
     });
 
     const xAxis = {
+        axisLine: {
+            lineStyle: {
+                color: 'red'
+            }
+        },
         max: xAxisMax,
         min: -xAxisMax
     };
 
     const yAxis = {
+        axisLine: {
+            lineStyle: {
+                color: 'red'
+            }
+        },
         max: yAxisMax,
         min: -yAxisMax
     };
