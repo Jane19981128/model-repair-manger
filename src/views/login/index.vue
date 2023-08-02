@@ -15,7 +15,7 @@
                     <a-form-item name="password">
                         <div class="input-box">
                             <a-input-password :bordered="false" style="border-bottom: 2px solid #fff;"
-                                v-model:value="formData.password" placeholder="请输入密码" />
+                                v-model:value="formData.password" placeholder="请输入密码" @pressEnter="triggerLogin" />
                         </div>
                     </a-form-item>
 
