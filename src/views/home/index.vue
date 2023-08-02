@@ -31,6 +31,7 @@
                     <template #bodyCell="{ column, text, record }">
                         <template v-if="column.key === 'action'">
                             <a-space>
+                                <a-button type="primary" @click="detailDrawing(record, 'ECHARTS')">预览</a-button>
                                 <a-button type="primary" @click="detailDrawing(record)">修模详情</a-button>
                                 <a-popconfirm :title="record.submitState == 2 ? '确定取消作废？' : '确定作废？'" ok-text="是"
                                     cancel-text="否" @confirm="recordHandle(record)" @cancel="cancelRecordHandel">
@@ -81,7 +82,6 @@ import {
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
 
 // 列表
 let current = ref(1);
@@ -346,7 +346,7 @@ const expandHandle = (expanded, record) => {
 let drawingBoxVisible = ref(false);
 let previewType = "JSON";
 let drawingData = reactive({});
-const detailDrawing = (row, type) => {
+const detailDrawing = (row, type = 'JSON') => {
     loading.value = true;
     previewType = type;
     const query = {
@@ -358,9 +358,6 @@ const detailDrawing = (row, type) => {
         loading.value = false;
         if (response.code === SUCCESS_CODE) {
             drawingData = reactive(response.data);
-            //为了从M100获取户型图数据，准备参数
-            // drawingData.modelId = row.modelId;
-            // drawingData.modelVersion = row.modelVersion;
             drawingBoxVisible.value = true;
         } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)
             router.push('/login');
