@@ -31,21 +31,6 @@ const props = defineProps({
     }
 });
 
-const formatSeries = (data, options, line = 'line') => {
-
-    return {
-        data: data,
-        type: line,
-        ...options
-    };
-};
-const formatOptions = (replaceMerge = [], options = {}) => {
-
-    return {
-        replaceMerge: ['series', ...replaceMerge],
-        ...options
-    };
-};
 /**
  * 计算默认楼层的户型图和标记信息
  */
@@ -174,14 +159,7 @@ const getCurFloorDrawing = (i) => {
             const options = {
                 name,
                 symbolSize: 8,
-                // symbol: 'triangle',
-                // endLabel: {
-                //     show: true,
-                //     formatter: function (params) {
-                //         return params.seriesName;
-
-                //     }
-                // }
+                markPoint: markPoint(lineList)
             };
 
             return formatSeries(lineList, options);
@@ -238,7 +216,7 @@ const initEchart = () => {
             containLabel: false
         },
         xAxis: axisDefault,
-        yAxis: axisDefault
+        yAxis: axisDefault,
     };
 
     chalkEchart.setOption(option);
@@ -262,6 +240,53 @@ const initSelect = () => {
 
 const levelChange = (value) => {
     changeEchart(myEchart.value);
+};
+
+const markPoint = (lineData) => {
+    const data = [];
+    lineData.forEach((item, index, array) => {
+        if (index) {
+            const preX = array[index - 1][0];
+            const preY = array[index - 1][1];
+
+            const x = (item[0] + preX) / 2;
+            const y = (item[1] + preY) / 2;
+
+            data.push({
+                name: 'mark' + index,
+                coord: [x, y],
+                symbolRotate: () => {
+                    const angle = Math.atan2(item[1] - preY, item[0] - preX) * 180 / Math.PI;
+                    return angle;
+                },
+            });
+        }
+    });
+
+    return {
+        itemStyle: {
+            borderColor: '#fff'
+        },
+        symbol: 'triangle',
+        symbolSize: [14, 16],
+        data
+    };
+};
+
+const formatSeries = (data, options, line = 'line') => {
+
+    return {
+        data: data,
+        type: line,
+        ...options,
+    };
+};
+const formatOptions = (replaceMerge = [], options = {}) => {
+
+    return {
+        replaceMerge: ['series', ...replaceMerge],
+        ...options
+    };
 };
 </script>
 <style scoped lang="scss">
