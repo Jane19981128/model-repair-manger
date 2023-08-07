@@ -348,7 +348,6 @@ let previewType = "JSON";
 let drawingData = reactive({});
 const detailDrawing = (row, type = 'JSON') => {
     loading.value = true;
-    previewType = type;
     const query = {
         modelId: row.modelId,
         chalkId: row.chalkId
@@ -357,6 +356,7 @@ const detailDrawing = (row, type = 'JSON') => {
     apiDrawingData(query).then(response => {
         loading.value = false;
         if (response.code === SUCCESS_CODE) {
+            previewType = type;
             drawingData = reactive(response.data);
             drawingBoxVisible.value = true;
         } else if (response.code === LOGIN_CODE.SIGN_EXPIRED.code)

@@ -27,7 +27,8 @@ const props = defineProps({
         default: () => []
     },
     bgImageList: {
-        type: [Array, String]
+        type: [Array, String],
+        default: () => []
     }
 });
 
@@ -44,11 +45,15 @@ const repairType = new Map([
     ['trim', '裁剪'], ['window', '窗'], ['mirror', '镜子'], ['wall', '补墙']
 ]);
 
-onMounted(() => {
-    echartWidth.value = chalkEcharts.value.offsetWidth - 20;
+onMounted(async () => {
     initSelect();
     myEchart = initEchart();
     changeEchart(myEchart, 0);
+
+    nextTick(() => {
+        echartWidth.value = chalkEcharts.value.offsetWidth - 20;
+    });
+
     spinning.value = false;
 
 });
