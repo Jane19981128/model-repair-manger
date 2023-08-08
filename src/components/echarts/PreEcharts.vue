@@ -45,23 +45,18 @@ const repairType = new Map([
     ['trim', '裁剪'], ['window', '窗'], ['mirror', '镜子'], ['wall', '补墙']
 ]);
 
-onMounted(async () => {
+onMounted(() => {
     initSelect();
     myEchart = initEchart();
-    changeEchart(myEchart, 0);
-
     nextTick(() => {
         echartWidth.value = chalkEcharts.value.offsetWidth - 20;
     });
-
-    spinning.value = false;
-
+    changeEchart(myEchart, 0);
 });
 
-watch([() => props.bgImageList, () => props.data], () => {
+watch([() => props.bgImageList, () => props.data], async () => {
     initSelect();
-    changeEchart(myEchart, 0);
-    spinning.value = false;
+    await changeEchart(myEchart, 0);
 });
 
 const changeEchart = async (echartsInstance, level) => {
@@ -92,6 +87,7 @@ const changeEchart = async (echartsInstance, level) => {
 
     nextTick(() => {
         echartsInstance.resize();
+        spinning.value = false;
     });
 
     const xAxis = {
