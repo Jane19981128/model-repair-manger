@@ -251,7 +251,7 @@ const recordHandle = (row) => {
     const queryParams = {
         modelId: row.modelId,
         chalkId: row.chalkId,
-        submitState: row.submitState ? 0 : 2
+        submitState: row.submitState == 2 ? 0 : 2
     };
     apiRecordCancel(queryParams).then(response => {
         if (response.code === SUCCESS_CODE) {
