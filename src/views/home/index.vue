@@ -434,7 +434,6 @@ onMounted(() => {
 
     .editable-cell-icon {
         margin-top: 4px;
-        display: none;
     }
 
     .editable-cell-icon-check {
@@ -449,9 +448,5 @@ onMounted(() => {
     .editable-add-btn {
         margin-bottom: 8px;
     }
-}
-
-.editable-cell:hover .editable-cell-icon {
-    display: inline-block;
 }
 </style>
