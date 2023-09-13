@@ -8,6 +8,7 @@ import 'ant-design-vue/dist/antd.css';
 import JsonViewer from 'vue-json-viewer';
 
 import { store } from './store/store';
+
 const app = createApp(App);
 app.use(router);
 app.use(store);
