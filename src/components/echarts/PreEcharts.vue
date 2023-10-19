@@ -240,7 +240,7 @@ const initSelect = () => {
 };
 
 const levelChange = (value) => {
-    changeEchart(myEchart.value);
+    changeEchart(myEchart, value);
 };
 
 const markPoint = (lineData) => {
